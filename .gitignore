@@ -10,3 +10,8 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+ckb_ffi/target
+ckb_ffi/**/*.rs.bk
+ckb_ffi/Cargo.lock
+libckb_ffi.a
