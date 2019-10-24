@@ -14,4 +14,3 @@
 ckb_ffi/target
 ckb_ffi/**/*.rs.bk
 ckb_ffi/Cargo.lock
-libckb_ffi.a
