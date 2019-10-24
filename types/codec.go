@@ -2,19 +2,20 @@ package types
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"reflect"
 )
 
 func typeName(v interface{}) string {
-	if t := reflect.ValueOf(v); t.Type().Kind() == reflect.Ptr {
+	t := reflect.ValueOf(v)
+
+	if t.Type().Kind() == reflect.Ptr {
 		return reflect.Indirect(t).Type().Name()
-	} else {
-		return t.Type().Name()
 	}
+	return t.Type().Name()
 }
 
+// Encode given ckb type to []byte
 func Encode(v interface{}) ([]byte, error) {
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -25,20 +26,21 @@ func Encode(v interface{}) ([]byte, error) {
 
 	retcode := CkbEncode(buf, []byte(typeName(v)), b)
 	if retcode != 0 {
-		return nil, errors.New(fmt.Sprintf("encode failure, code %d", retcode))
+		return nil, fmt.Errorf("encode failure, code %d", retcode)
 	}
 
 	return buf.toBytes(), nil
 }
 
+// Decode given []byte to specified ckb type
 func Decode(b []byte, v interface{}) error {
 	buf := new(Buffer)
-	mol_buf := newBufferFromBytes(b)
-	defer mol_buf.Free()
+	molbuf := newBufferFromBytes(b)
+	defer molbuf.Free()
 
-	retcode := CkbDecode(buf, []byte(typeName(v)), mol_buf)
+	retcode := CkbDecode(buf, []byte(typeName(v)), molbuf)
 	if retcode != 0 {
-		return errors.New(fmt.Sprintf("encode failure, code %d", retcode))
+		return fmt.Errorf("encode failure, code %d", retcode)
 	}
 
 	return json.Unmarshal(buf.toBytes(), v)

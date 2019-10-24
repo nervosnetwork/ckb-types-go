@@ -1,17 +1,31 @@
 package types
 
 // Basic
-type Uint32 = string // 0x-prefixed uint32
+
+// Uint32 ckb uint32
+type Uint32 = string
+
+// Uint128 ckb uint128
 type Uint128 = string
+
+// H256 ckb H256
 type H256 = string
 
-// Enum
+// Enum type
+
+// ScriptHashType ckb script hash type
 type ScriptHashType string
+
+// DepType ckb dep type
 type DepType string
 
-type JsonBytes = []byte
-type ProposalShortId = string
+// JSONBytes ckb json bytes
+type JSONBytes = []byte
 
+// ProposalShortID ckb proposal short id
+type ProposalShortID = string
+
+// Enum values
 const (
 	Data ScriptHashType = "data"
 	Type ScriptHashType = "type"
@@ -20,43 +34,50 @@ const (
 	DepGroup DepType = "dep_group"
 )
 
+// Script ckb script
 type Script struct {
-	Args     JsonBytes      `json:"args"`
+	Args     JSONBytes      `json:"args"`
 	CodeHash H256           `json:"code_hash"`
 	HashType ScriptHashType `json:"hash_type"`
 }
 
+// OutPoint ckb outpoint
 type OutPoint struct {
 	TxHash H256   `json:"tx_hash"`
 	Index  Uint32 `json:"index"`
 }
 
+// CellInput ckb cell input
 type CellInput struct {
 	PreviousOutput OutPoint `json:"previous_output"`
 	Since          uint64   `json:"since"`
 }
 
+// CellOutput ckb cell output
 type CellOutput struct {
 	Capacity uint64  `json:"capacity"`
 	Lock     Script  `json:"lock"`
 	Type     *Script `json:"type"`
 }
 
+// CellDep ckb cell dep
 type CellDep struct {
 	OutPoint OutPoint `json:"out_point"`
-	DepType_ DepType  `json:"dep_type"`
+	DepType  DepType  `json:"dep_type"`
 }
 
+// Transaction ckb transaction
 type Transaction struct {
 	Version     Uint32       `json:"version"`
 	CellDeps    []CellDep    `json:"cell_deps"`
 	HeaderDeps  []H256       `json:"header_deps"`
 	Inputs      []CellInput  `json:"inputs"`
 	Outputs     []CellOutput `json:"outputs"`
-	Witnesses   []JsonBytes  `json:"witnesses"`
-	OutputsData []JsonBytes  `json:"outputs_data"`
+	Witnesses   []JSONBytes  `json:"witnesses"`
+	OutputsData []JSONBytes  `json:"outputs_data"`
 }
 
+// Header ckb header
 type Header struct {
 	Version          Uint32   `json:"version"`
 	CompactTarget    Uint32   `json:"compact_target"`
@@ -71,13 +92,16 @@ type Header struct {
 	Nonce            Uint128  `json:"nonce"`
 }
 
+// UncleBlock ckb uncle block
 type UncleBlock struct {
 	Header    Header            `json:"header"`
-	Proposals []ProposalShortId `json:"proposals"`
+	Proposals []ProposalShortID `json:"proposals"`
 }
+
+// Block ckb block
 type Block struct {
 	Header       Header            `json:"header"`
 	Uncles       []UncleBlock      `json:"uncles"`
 	Transactions []Transaction     `json:"transactions"`
-	Proposals    []ProposalShortId `json:"proposals"`
+	Proposals    []ProposalShortID `json:"proposals"`
 }
