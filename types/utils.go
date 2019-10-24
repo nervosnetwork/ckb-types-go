@@ -9,12 +9,14 @@ package types
 import "C"
 import "unsafe"
 
-func (x *Buffer) toBytes() []byte {
-	if x.refb0a5a638 == nil {
+func (b *Buffer) toBytes() []byte {
+	if b == nil {
 		return nil
 	}
 
-	return C.GoBytes(unsafe.Pointer(x.refb0a5a638.data), C.int(x.refb0a5a638.len))
+	b.Deref()
+
+	return C.GoBytes(unsafe.Pointer(b.Data), C.int(b.Len))
 }
 
 func newBufferFromBytes(b []byte) *Buffer {
