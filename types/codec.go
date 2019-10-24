@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 )
 
@@ -24,7 +25,7 @@ func Encode(v interface{}) ([]byte, error) {
 
 	retcode := CkbEncode(buf, []byte(typeName(v)), b)
 	if retcode != 0 {
-		return nil, errors.New("encode failure, invalid or unsupport type")
+		return nil, errors.New(fmt.Sprintf("encode failure, code %d", retcode))
 	}
 
 	return buf.toBytes(), nil
@@ -37,7 +38,7 @@ func Decode(b []byte, v interface{}) error {
 
 	retcode := CkbDecode(buf, []byte(typeName(v)), mol_buf)
 	if retcode != 0 {
-		return errors.New("decode failure, invalid or unsupport type")
+		return errors.New(fmt.Sprintf("encode failure, code %d", retcode))
 	}
 
 	return json.Unmarshal(buf.toBytes(), v)

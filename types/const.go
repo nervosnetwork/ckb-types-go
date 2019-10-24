@@ -13,10 +13,13 @@ package types
 */
 import "C"
 
-// Buffer as declared in ckb-types-go/ckb_ffi.h:22
-type Buffer struct {
-	Len            uint
-	Data           *byte
-	refb0a5a638    *C.buffer_t
-	allocsb0a5a638 interface{}
-}
+const (
+	// OK as defined in ckb-types-go/ckb_ffi.h:14
+	OK = 0x00
+	// INVALID_JSON as defined in ckb-types-go/ckb_ffi.h:15
+	INVALID_JSON = 0x01
+	// INVALID_MOLECULE as defined in ckb-types-go/ckb_ffi.h:16
+	INVALID_MOLECULE = 0x02
+	// UNSUPPORTED_TYPE as defined in ckb-types-go/ckb_ffi.h:17
+	UNSUPPORTED_TYPE = 0x03
+)

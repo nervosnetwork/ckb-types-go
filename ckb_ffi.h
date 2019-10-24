@@ -11,6 +11,11 @@ _CPP_BEGIN
 
 #include <stdint.h>
 
+#define CKB_FFI_OK                              0x00
+#define CKB_FFI_INVALID_JSON                    0x01
+#define CKB_FFI_INVALID_MOLECULE                0x02
+#define CKB_FFI_UNSUPPORTED_TYPE                0x03
+
 typedef struct {
     uint64_t len;
     uint8_t *data;

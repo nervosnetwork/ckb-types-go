@@ -30,8 +30,13 @@ TRANSLATOR:
     global:
       - {action: accept, from: ^buffer_t}
       - {action: accept, from: ^ckb_}
+      - {action: accept, from: ^CKB_FFI_}
+    const:
+      - {action: replace, from: ^CKB_FFI_}
     type:
       - {action: replace, from: "_t$"}
-    post-global:
+      - {transform: export}
+      - {load: snakecase}
+    function:
       - {transform: export}
       - {load: snakecase}

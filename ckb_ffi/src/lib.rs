@@ -1,6 +1,12 @@
 // reference: https://github.com/yangby-cryptape/ckb-ffi
 pub mod conv;
 pub mod error;
+use error::Error;
+
+const OK: i32 = 0;
+const INVALID_JSON: i32 = 1;
+const INVALID_MOLECULE: i32 = 2;
+const UNSUPPORTED_TYPE: i32 = 3;
 
 #[repr(C)]
 pub struct Buffer {
@@ -14,16 +20,16 @@ pub unsafe extern "C" fn ckb_encode(
     type_name: *const libc::c_char,
     json: *const libc::c_char,
 ) -> i32 {
-    let mut retcode = 0;
     let type_name = cstring_to_str(type_name);
     let json_str = cstring_to_str(json);
 
-    if let Ok(mol_bytes) = conv::try_convert(type_name, json_str.as_bytes(), true) {
-        vector_into_buffer(&mut output, mol_bytes);
-    } else {
-        retcode = 1;
+    match conv::try_convert(type_name, json_str.as_bytes(), true) {
+        Ok(mol_bytes) => {
+            vector_into_buffer(&mut output, mol_bytes);
+            OK
+        }
+        Err(err) => error_code(err),
     }
-    retcode
 }
 
 #[no_mangle]
@@ -32,16 +38,16 @@ pub unsafe extern "C" fn ckb_decode(
     type_name: *const libc::c_char,
     mol: *const Buffer,
 ) -> i32 {
-    let mut retcode = 0;
     let type_name = cstring_to_str(type_name);
-    let slice_mol = buffer_to_slice(mol);
+    let mol_slice = buffer_to_slice(mol);
 
-    if let Ok(json_bytes) = conv::try_convert(type_name, slice_mol, false) {
-        vector_into_buffer(&mut output, json_bytes);
-    } else {
-        retcode = 1;
+    match conv::try_convert(type_name, mol_slice, false) {
+        Ok(json_bytes) => {
+            vector_into_buffer(&mut output, json_bytes);
+            OK
+        }
+        Err(err) => error_code(err),
     }
-    retcode
 }
 
 #[no_mangle]
@@ -50,6 +56,14 @@ pub extern "C" fn buffer_free(buf: Buffer) {
     let slice = slice.as_mut_ptr();
     unsafe {
         Box::from_raw(slice);
+    }
+}
+
+fn error_code(err: Error) -> i32 {
+    match err {
+        Error::SerdeJson(_) => INVALID_JSON,
+        Error::Molecule(_) => INVALID_MOLECULE,
+        Error::UnsupportedType => UNSUPPORTED_TYPE,
     }
 }
 
