@@ -82,17 +82,17 @@ type Transaction struct {
 
 // Header ckb header
 type Header struct {
-	Version          Uint32   `json:"version"`
-	CompactTarget    Uint32   `json:"compact_target"`
-	ParentHash       H256     `json:"parent_hash"`
-	Timestamp        Uint64   `json:"timestamp"`
-	Number           Uint64   `json:"number"`
-	Epoch            Uint64   `json:"epoch"`
-	TransactionsRoot H256     `json:"transactions_root"`
-	ProposalsHash    H256     `json:"proposals_hash"`
-	UnclesHash       H256     `json:"uncles_hash"`
-	Dao              [32]byte `json:"dao"`
-	Nonce            Uint128  `json:"nonce"`
+	Version          Uint32  `json:"version"`
+	CompactTarget    Uint32  `json:"compact_target"`
+	ParentHash       H256    `json:"parent_hash"`
+	Timestamp        Uint64  `json:"timestamp"`
+	Number           Uint64  `json:"number"`
+	Epoch            Uint64  `json:"epoch"`
+	TransactionsRoot H256    `json:"transactions_root"`
+	ProposalsHash    H256    `json:"proposals_hash"`
+	UnclesHash       H256    `json:"uncles_hash"`
+	Dao              string  `json:"dao"`
+	Nonce            Uint128 `json:"nonce"`
 }
 
 // UncleBlock ckb uncle block
