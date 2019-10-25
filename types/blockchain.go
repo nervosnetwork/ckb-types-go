@@ -2,10 +2,13 @@ package types
 
 // Basic
 
-// Uint32 ckb uint32
+// Uint32 ckb uint32, '0x' prefix nubmer
 type Uint32 = string
 
-// Uint128 ckb uint128
+// Uint64 ckb uint64, '0x' prefix number
+type Uint64 = string
+
+// Uint128 ckb uint128, '0x' prefix number
 type Uint128 = string
 
 // H256 ckb H256
@@ -20,7 +23,7 @@ type ScriptHashType string
 type DepType string
 
 // JSONBytes ckb json bytes
-type JSONBytes = []byte
+type JSONBytes = string
 
 // ProposalShortID ckb proposal short id
 type ProposalShortID = string
@@ -50,12 +53,12 @@ type OutPoint struct {
 // CellInput ckb cell input
 type CellInput struct {
 	PreviousOutput OutPoint `json:"previous_output"`
-	Since          uint64   `json:"since"`
+	Since          Uint64   `json:"since"`
 }
 
 // CellOutput ckb cell output
 type CellOutput struct {
-	Capacity uint64  `json:"capacity"`
+	Capacity Uint64  `json:"capacity"`
 	Lock     Script  `json:"lock"`
 	Type     *Script `json:"type"`
 }
@@ -82,9 +85,9 @@ type Header struct {
 	Version          Uint32   `json:"version"`
 	CompactTarget    Uint32   `json:"compact_target"`
 	ParentHash       H256     `json:"parent_hash"`
-	Timestamp        uint64   `json:"timestamp"`
-	Number           uint64   `json:"number"`
-	Epoch            uint64   `json:"epoch"`
+	Timestamp        Uint64   `json:"timestamp"`
+	Number           Uint64   `json:"number"`
+	Epoch            Uint64   `json:"epoch"`
 	TransactionsRoot H256     `json:"transactions_root"`
 	ProposalsHash    H256     `json:"proposals_hash"`
 	UnclesHash       H256     `json:"uncles_hash"`
