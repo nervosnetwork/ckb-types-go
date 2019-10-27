@@ -250,6 +250,7 @@ func main() {
 	}
 
 	// Hex witness signature
+    // NOTE: 130 is secp256k1 sig with recovery pubkey
 	witness := make([]byte, 130)
 	hex.Encode(witness, witnessSig[:])
 
