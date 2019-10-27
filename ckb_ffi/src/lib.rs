@@ -85,6 +85,7 @@ unsafe fn cstring_to_str(input: *const libc::c_char) -> &'static str {
 }
 
 #[cfg(test)]
+#[allow(clippy::new_without_default)]
 mod tests {
     use super::*;
 

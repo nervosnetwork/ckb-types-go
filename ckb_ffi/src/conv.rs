@@ -25,6 +25,34 @@ macro_rules! convert {
     }};
 }
 
+fn convert_tx(source: &[u8], from_json: bool) -> Result<Vec<u8>, Error> {
+    if from_json {
+        encode_tx(source)
+    } else {
+        decode_raw_tx(source)
+    }
+}
+
+// First turn Transaction into RawTransaction, then return its molecule bytes
+fn encode_tx(source: &[u8]) -> Result<Vec<u8>, Error> {
+    let json_struct = serde_json::from_slice::<ckb_jsonrpc_types::Transaction>(source)?;
+    let packed_struct: ckb_types::packed::Transaction = json_struct.into();
+
+    Ok(packed_struct.as_reader().raw().as_slice().to_owned())
+}
+
+// Decode molecule RawTransaction bytes, turn into Transaction, then return its
+// json bytes
+fn decode_raw_tx(source: &[u8]) -> Result<Vec<u8>, Error> {
+    let raw_tx = ckb_types::packed::RawTransaction::from_slice(source)?;
+    let tx = ckb_types::packed::Transaction::new_builder()
+        .raw(raw_tx)
+        .build();
+    let json_struct: ckb_jsonrpc_types::Transaction = tx.into();
+
+    Ok(serde_json::to_vec::<_>(&json_struct)?)
+}
+
 pub fn try_convert(ty: &str, source: &[u8], from_json: bool) -> Result<Vec<u8>, Error> {
     match ty {
         // Chain Types
@@ -34,7 +62,7 @@ pub fn try_convert(ty: &str, source: &[u8], from_json: bool) -> Result<Vec<u8>, 
         "CellInput" => convert!(try(CellInput, source, from_json)),
         "CellOutput" => convert!(try(CellOutput, source, from_json)),
         "CellDep" => convert!(try(CellDep, source, from_json)),
-        "Transaction" => convert!(try(Transaction, source, from_json)),
+        "Transaction" => convert_tx(source, from_json),
         "Header" => convert!(try(Header, source, from_json)),
         "UncleBlock" => convert!(try(UncleBlock, source, from_json)),
         "Block" => convert!(try(Block, source, from_json)),
