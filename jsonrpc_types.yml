@@ -4,9 +4,9 @@ GENERATOR:
   PackageDescription: "Package ckb provides Go bindings for ckb types serialize and deserialize"
   PackageLicense: "MIT"
   Includes:
-    - ../ckb_ffi.h
+    - ../../ckb_ffi.h
   FlagGroups:
-    - {name: LDFLAGS, flags: ["-static", "-L${SRCDIR}/../", "-lckb_ffi", "-lpthread", "-ldl"]}
+    - {name: LDFLAGS, flags: ["-static", "-L${SRCDIR}/../../", "-lckb_ffi", "-lpthread", "-ldl"]}
   Options:
     SafeStrings: true
 

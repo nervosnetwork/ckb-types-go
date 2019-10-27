@@ -1,8 +1,8 @@
 package types
 
 /*
-#cgo LDFLAGS: -static -L${SRCDIR}/../ -lckb_ffi -lpthread -ldl
-#include "../ckb_ffi.h"
+#cgo LDFLAGS: -static -L${SRCDIR}/../../ -lckb_ffi -lpthread -ldl
+#include "../../ckb_ffi.h"
 #include <stdlib.h>
 #include "cgo_helpers.h"
 */
