@@ -17,7 +17,7 @@ import t "github.com/zeroqn/ckb-types-go/jsonrpc/types"
 
 func main() {
 	testTx := t.Transaction{
-		Version:     "0x1",
+		Version:     "0x0",
 		CellDeps:    make([]t.CellDep, 0),
 		HeaderDeps:  make([]t.H256, 0),
 		Inputs:      make([]t.CellInput, 0),
