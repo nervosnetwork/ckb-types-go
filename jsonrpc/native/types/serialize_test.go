@@ -1,351 +1,258 @@
 package types
 
 import (
-	"bytes"
-	tt "github.com/zeroqn/ckb-types-go/jsonrpc/types"
+	"encoding/hex"
+	"encoding/json"
 	"testing"
 )
 
 func TestSerializeScript(t *testing.T) {
-	s := tt.Script{
-		CodeHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		HashType: tt.Type,
-		Args:     "0x470dcdc5e44064909650113a274b3b36aecb6dc7",
-	}
+	script := `{
+		"code_hash": "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
+		"hash_type": "type",
+		"args": "0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7"
+	}`
 
-	expect, err := tt.Encode(s)
+	expectHex := "490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d7"
+
+	var s Script
+
+	err := json.Unmarshal([]byte(script), &s)
 	if err != nil {
-		t.Errorf("Fail to encode script through ffi: %s\n", err)
+		t.Errorf("fail to unmarshal test script json: %s\n", err)
 		return
 	}
 
-	ss := Script{
-		CodeHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		HashType: Type,
-		Args:     "0x470dcdc5e44064909650113a274b3b36aecb6dc7",
-	}
-
-	got, err := ss.Serialize()
+	got, err := s.Serialize()
 	if err != nil {
-		t.Errorf("fail to serialize through native: %s\n", err)
+		t.Errorf("fail to serialize: %s\n", err)
 		return
 	}
 
-	if !bytes.Equal(expect, got) {
-		t.Errorf("mismatch result, expect %v, got %v", expect, got)
+	gotHex := hex.EncodeToString(got)
+
+	if expectHex != gotHex {
+		t.Errorf("mismatch result, expect %v, got %v", expectHex, gotHex)
 		return
 	}
 }
 
 func TestSerializeOutPoint(t *testing.T) {
-	o := tt.OutPoint{
-		TxHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		Index:  "0x6",
-	}
+	outpoint := `{
+		"tx_hash": "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
+		"index":  "0x6"
+	}`
 
-	expect, err := tt.Encode(o)
+	expectHex := "e49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad6437906000000"
+
+	var o OutPoint
+
+	err := json.Unmarshal([]byte(outpoint), &o)
 	if err != nil {
-		t.Errorf("Fail to encode script through ffi: %s\n", err)
+		t.Errorf("fail to unmarshal test outpoint json: %s\n", err)
 		return
 	}
 
-	oo := OutPoint{
-		TxHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		Index:  "0x6",
-	}
-
-	got, err := oo.Serialize()
+	got, err := o.Serialize()
 	if err != nil {
 		t.Errorf("fail to serialize through native: %s\n", err)
 		return
 	}
 
-	if !bytes.Equal(expect, got) {
-		t.Errorf("mismatch result, expect %v, got %v", expect, got)
+	gotHex := hex.EncodeToString(got)
+
+	if gotHex != expectHex {
+		t.Errorf("mismatch result, expect %v, got %v", expectHex, gotHex)
 		return
 	}
 }
 
 func TestSerializeCellInput(t *testing.T) {
-	o := tt.OutPoint{
-		TxHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		Index:  "0x6",
-	}
+	input := `{
+		"previous_output": {
+			"tx_hash": "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
+			"index": "0x6"
+		},
+		"since": "0x0"
+	}`
 
-	i := tt.CellInput{
-		PreviousOutput: o,
-		Since:          "0x0",
-	}
+	expectHex := "0000000000000000e49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad6437906000000"
 
-	expect, err := tt.Encode(i)
+	var i CellInput
+
+	err := json.Unmarshal([]byte(input), &i)
 	if err != nil {
-		t.Errorf("Fail to encode script through ffi: %s\n", err)
+		t.Errorf("fail to unmarshal test cell input json: %s\n", err)
 		return
 	}
 
-	oo := OutPoint{
-		TxHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		Index:  "0x6",
-	}
-
-	ii := CellInput{
-		PreviousOutput: oo,
-		Since:          "0x0",
-	}
-
-	got, err := ii.Serialize()
+	got, err := i.Serialize()
 	if err != nil {
 		t.Errorf("fail to serialize through native: %s\n", err)
 		return
 	}
 
-	if !bytes.Equal(expect, got) {
-		t.Errorf("mismatch result, expect %v, got %v", expect, got)
+	gotHex := hex.EncodeToString(got)
+
+	if gotHex != expectHex {
+		t.Errorf("mismatch result, expect %v, got %v", expectHex, gotHex)
 		return
 	}
 }
 
 func TestSerializeCellOutput(t *testing.T) {
-	// Test without type script
-	s := tt.Script{
-		CodeHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		HashType: tt.Type,
-		Args:     "0x470dcdc5e44064909650113a274b3b36aecb6dc7",
-	}
+	output := `{
+		"capacity": "0x666",
+		"lock": {
+			"code_hash": "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
+			"hash_type": "type",
+			"args": "0x470dcdc5e44064909650113a274b3b36aecb6dc7"
+		},
+		"type": null
+	}`
 
-	o := tt.CellOutput{
-		Capacity: "0x6666",
-		Lock:     s,
-		Type:     nil,
-	}
+	expectHex := "61000000100000001800000061000000660600000000000049000000100000003000000031000000e49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad643790114000000470dcdc5e44064909650113a274b3b36aecb6dc7"
 
-	expect, err := tt.Encode(o)
+	var o CellOutput
+
+	err := json.Unmarshal([]byte(output), &o)
 	if err != nil {
-		t.Errorf("Fail to encode script through ffi: %s\n", err)
+		t.Errorf("fail to unmarshal test cell output json: %s\n", err)
 		return
 	}
 
-	ss := Script{
-		CodeHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		HashType: Type,
-		Args:     "0x470dcdc5e44064909650113a274b3b36aecb6dc7",
-	}
-
-	oo := CellOutput{
-		Capacity: "0x6666",
-		Lock:     ss,
-		Type:     nil,
-	}
-
-	got, err := oo.Serialize()
+	got, err := o.Serialize()
 	if err != nil {
 		t.Errorf("fail to serialize through native: %s\n", err)
 		return
 	}
 
-	if !bytes.Equal(expect, got) {
-		t.Errorf("mismatch result, expect %v, got %v", expect, got)
+	gotHex := hex.EncodeToString(got)
+
+	if gotHex != expectHex {
+		t.Errorf("mismatch result, expect %v, got %v", expectHex, gotHex)
 		return
 	}
 
 	// Test with type script
 
-	o.Type = &s
+	expectHex = "aa000000100000001800000061000000660600000000000049000000100000003000000031000000e49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad643790114000000470dcdc5e44064909650113a274b3b36aecb6dc749000000100000003000000031000000e49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad643790114000000470dcdc5e44064909650113a274b3b36aecb6dc7"
 
-	expect, err = tt.Encode(o)
-	if err != nil {
-		t.Errorf("Fail to encode script through ffi: %s\n", err)
-		return
-	}
+	o.Type = &o.Lock
 
-	oo.Type = &ss
-
-	got, err = oo.Serialize()
+	got, err = o.Serialize()
 	if err != nil {
 		t.Errorf("fail to serialize through native: %s\n", err)
 		return
 	}
 
-	if !bytes.Equal(expect, got) {
-		t.Errorf("mismatch result, expect %v, got %v", expect, got)
+	gotHex = hex.EncodeToString(got)
+
+	if gotHex != expectHex {
+		t.Errorf("mismatch result, expect %v, got %v", expectHex, gotHex)
 		return
 	}
 }
 
 func TestSerializeCellDep(t *testing.T) {
-	o := tt.OutPoint{
-		TxHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		Index:  "0x6",
-	}
+	dep := `{
+		"out_point": {
+			"tx_hash": "0xb815a396c5226009670e89ee514850dcde452bca746cdd6b41c104b50e559c70",
+			"index": "0x0"
+		},
+		"dep_type": "dep_group"
+	}`
 
-	d := tt.CellDep{
-		OutPoint: o,
-		DepType:  tt.DepGroup,
-	}
+	expectHex := "b815a396c5226009670e89ee514850dcde452bca746cdd6b41c104b50e559c700000000001"
 
-	expect, err := tt.Encode(d)
+	var d CellDep
+
+	err := json.Unmarshal([]byte(dep), &d)
 	if err != nil {
-		t.Errorf("Fail to encode script through ffi: %s\n", err)
+		t.Errorf("fail to unmarshal test cell dep json: %s\n", err)
 		return
 	}
 
-	oo := OutPoint{
-		TxHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		Index:  "0x6",
-	}
-
-	dd := CellDep{
-		OutPoint: oo,
-		DepType:  DepGroup,
-	}
-
-	got, err := dd.Serialize()
+	got, err := d.Serialize()
 	if err != nil {
-		t.Errorf("fail to serialize through native: %s\n", err)
+		t.Errorf("fail to serialize: %s\n", err)
 		return
 	}
 
-	if !bytes.Equal(expect, got) {
-		t.Errorf("mismatch result, expect %v, got %v", expect, got)
+	gotHex := hex.EncodeToString(got)
+
+	if gotHex != expectHex {
+		t.Errorf("mismatch result, expect %v, got %v", expectHex, gotHex)
 		return
 	}
 }
 
 func TestSerializeTransaction(t *testing.T) {
-	aliceAddress := "0x470dcdc5e44064909650113a274b3b36aecb6dc7"
-	bobAddress := "0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7"
-	systemCellLockCodeHash := "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8"
-	m5 := "0x1c6bf52634000"
+	transaction := `{
+	  "cell_deps": [
+		{
+		  "out_point": {
+			"tx_hash": "0xb815a396c5226009670e89ee514850dcde452bca746cdd6b41c104b50e559c70",
+			"index": "0x0"
+		  },
+		  "dep_type": "dep_group"
+		}
+	  ],
+	  "header_deps": [],
+	  "inputs": [
+		{
+		  "previous_output": {
+			"tx_hash": "0xee046ce2baeda575266d4164f394c53f66009f64759f7a9f12a014c692e79390",
+			"index": "0x6"
+		  },
+		  "since": "0x0"
+		}
+	  ],
+	  "outputs": [
+		{
+		  "capacity": "0x1c6bf52634000",
+		  "lock": {
+			"args": "0x470dcdc5e44064909650113a274b3b36aecb6dc7",
+			"code_hash": "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
+			"hash_type": "type"
+		  },
+		  "type": null
+		},
+		{
+		  "capacity": "0x1c6bf52634000",
+		  "lock": {
+			"args": "0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7",
+			"code_hash": "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
+			"hash_type": "type"
+		  },
+		  "type": null
+		}
+	  ],
+	  "outputs_data": ["0x", "0x"],
+	  "version": "0x0",
+	  "witnesses": []
+	}`
 
-	secpDepGroup := "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379"
-	outpoint := tt.OutPoint{
-		TxHash: secpDepGroup,
-		Index:  "0x0",
-	}
+	expectHex := "5f0100001c00000020000000490000004d0000007d0000004b0100000000000001000000b815a396c5226009670e89ee514850dcde452bca746cdd6b41c104b50e559c70000000000100000000010000000000000000000000ee046ce2baeda575266d4164f394c53f66009f64759f7a9f12a014c692e7939006000000ce0000000c0000006d0000006100000010000000180000006100000000406352bfc60100490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000470dcdc5e44064909650113a274b3b36aecb6dc76100000010000000180000006100000000406352bfc60100490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d7140000000c000000100000000000000000000000"
 
-	cellDep := tt.CellDep{
-		OutPoint: outpoint,
-		DepType:  tt.DepGroup,
-	}
+	var tx Transaction
 
-	// Calc input
-	bobPrevOutPoint := tt.OutPoint{
-		TxHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		Index:  "0x6",
-	}
-
-	bobInput := tt.CellInput{
-		PreviousOutput: bobPrevOutPoint,
-		Since:          "0x0",
-	}
-
-	// Calc outputs
-	aliceScript := tt.Script{
-		Args:     aliceAddress,
-		CodeHash: systemCellLockCodeHash,
-		HashType: tt.Type,
-	}
-
-	aliceOutput := tt.CellOutput{
-		Capacity: m5,
-		Lock:     aliceScript,
-		Type:     nil,
-	}
-
-	bobScript := tt.Script{
-		Args:     bobAddress,
-		CodeHash: systemCellLockCodeHash,
-		HashType: tt.Type,
-	}
-
-	bobOutput := tt.CellOutput{
-		Capacity: m5,
-		Lock:     bobScript,
-		Type:     nil,
-	}
-
-	// Assemble transaction
-	tx := tt.Transaction{
-		Version:     "0x0",
-		CellDeps:    []tt.CellDep{cellDep},
-		HeaderDeps:  make([]tt.H256, 0),
-		Inputs:      []tt.CellInput{bobInput},
-		Outputs:     []tt.CellOutput{aliceOutput, bobOutput},
-		Witnesses:   make([]tt.JSONBytes, 0),
-		OutputsData: []tt.JSONBytes{"0x", "0x"},
-	}
-
-	expect, err := tt.Encode(tx)
+	err := json.Unmarshal([]byte(transaction), &tx)
 	if err != nil {
-		t.Errorf("Fail to encode script through ffi: %s\n", err)
+		t.Errorf("fail to unmarshal test transaction json: %s\n", err)
 		return
 	}
 
-	oo := OutPoint{
-		TxHash: secpDepGroup,
-		Index:  "0x0",
-	}
-
-	cd := CellDep{
-		OutPoint: oo,
-		DepType:  DepGroup,
-	}
-
-	// Calc input
-	po := OutPoint{
-		TxHash: "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379",
-		Index:  "0x6",
-	}
-
-	bi := CellInput{
-		PreviousOutput: po,
-		Since:          "0x0",
-	}
-
-	// Calc outputs
-	as := Script{
-		Args:     aliceAddress,
-		CodeHash: systemCellLockCodeHash,
-		HashType: Type,
-	}
-
-	ao := CellOutput{
-		Capacity: m5,
-		Lock:     as,
-		Type:     nil,
-	}
-
-	bs := Script{
-		Args:     bobAddress,
-		CodeHash: systemCellLockCodeHash,
-		HashType: Type,
-	}
-
-	bo := CellOutput{
-		Capacity: m5,
-		Lock:     bs,
-		Type:     nil,
-	}
-
-	// Assemble transaction
-	tt := Transaction{
-		Version:     "0x0",
-		CellDeps:    []CellDep{cd},
-		HeaderDeps:  make([]Hash, 0),
-		Inputs:      []CellInput{bi},
-		Outputs:     []CellOutput{ao, bo},
-		Witnesses:   make([]Bytes, 0),
-		OutputsData: []Bytes{"0x", "0x"},
-	}
-
-	got, err := tt.Serialize()
+	got, err := tx.Serialize()
 	if err != nil {
-		t.Errorf("fail to serialize through native: %s\n", err)
+		t.Errorf("fail to serialize: %s\n", err)
 		return
 	}
 
-	if !bytes.Equal(expect, got) {
-		t.Errorf("mismatch result\n expect %v\n got %v\n", expect, got)
+	gotHex := hex.EncodeToString(got)
+
+	if gotHex != expectHex {
+		t.Errorf("mismatch result, expect %v, got %v", expectHex, gotHex)
 		return
 	}
 }
