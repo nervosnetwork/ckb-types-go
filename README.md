@@ -1,5 +1,7 @@
 # ckb-types-go
 
+[![Actions Status](https://github.com/zeroqn/ckb-types-go/workflows/go/badge.svg)](https://github.com/zeroqn/ckb-types-go/actions)
+
 ### Note
 
 Encode `Transaction` will strip witnesses field, so that
