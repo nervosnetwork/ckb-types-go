@@ -1,22 +1,17 @@
 package types
 
-import (
-// "fmt"
-// "strings"
-)
-
 // Basic
 
-// Uint32 ckb uint32, '0x' prefix nubmer
+// Uint32 ckb uint32, '0x' prefix hex number
 type Uint32 = string
 
-// Uint64 ckb uint64, '0x' prefix number
+// Uint64 ckb uint64, '0x' prefix hex number
 type Uint64 = string
 
-// Uint128 ckb uint128, '0x' prefix number
+// Uint128 ckb uint128, '0x' prefix hex number
 type Uint128 = string
 
-// Hash ckb hash
+// Hash ckb hash, '0x' prefix hex string
 type Hash = string
 
 // Enum type

@@ -121,8 +121,15 @@ func SerializeUint32(n uint32) []byte {
 	return b
 }
 
-// SerializeFixVec serialize fixvec
+// SerializeFixVec serialize fixvec vector
+/*
+ * There are two steps of serializing a fixvec:
+ *
+ *     Serialize the length as a 32 bit unsigned integer in little-endian.
+ *     Serialize all items in it.
+ */
 func SerializeFixVec(v [][]byte) []byte {
+	// Empty fix vector bytes
 	if len(v) == 0 {
 		return []byte{00, 00, 00, 00}
 	}
@@ -141,14 +148,25 @@ func SerializeFixVec(v [][]byte) []byte {
 }
 
 // SerializeDynVec serialize dynvec
+/*
+ * There are three steps of serializing a dynvec:
+ *
+ *     Serialize the full size in bytes as a 32 bit unsigned integer in little-endian.
+ *     Serialize all offset of items as 32 bit unsigned integer in little-endian.
+ *     Serialize all items in it.
+ */
 func SerializeDynVec(v [][]byte) []byte {
+	// Full size start from 4
 	size := 4
+
+	// Empty dyn vector bytes
 	if len(v) == 0 {
 		return SerializeUint32(uint32(size))
 	}
 
 	offsets := make([]uint32, len(v))
 
+	// Calculate first offset then loop for rest items offsets
 	offsets[0] = uint32(4 + 4*len(v))
 	for i := 0; i < len(v); i++ {
 		size += 4 + len(v[i])
