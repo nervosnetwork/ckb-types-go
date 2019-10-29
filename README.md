@@ -70,11 +70,11 @@ type RPCResultTransaction struct {
 	Version     t.Uint32       `json:"version"`
 	Hash        string         `json:"hash"`
 	CellDeps    []t.CellDep    `json:"cell_deps"`
-	HeaderDeps  []t.H256       `json:"header_deps"`
+	HeaderDeps  []t.Hash       `json:"header_deps"`
 	Inputs      []t.CellInput  `json:"inputs"`
 	Outputs     []t.CellOutput `json:"outputs"`
-	Witnesses   []t.JSONBytes  `json:"witnesses"`
-	OutputsData []t.JSONBytes  `json:"outputs_data"`
+	Witnesses   []t.Bytes      `json:"witnesses"`
+	OutputsData []t.Bytes      `json:"outputs_data"`
 }
 
 // RPCResultBlock block response from jsonrpc
@@ -116,7 +116,7 @@ func main() {
 	// Calc cell deps
 	secpDepGroup := genesisBlock.Transactions[1].Hash
 	outpoint := t.OutPoint{
-		TxHash: secpDepGroup,
+		TxHash: t.Hash(secpDepGroup),
 		Index:  "0x0",
 	}
 
@@ -127,7 +127,7 @@ func main() {
 
 	// Calc input
 	bobPrevOutPoint := t.OutPoint{
-		TxHash: genesisBlock.Transactions[0].Hash,
+		TxHash: t.Hash(genesisBlock.Transactions[0].Hash),
 		Index:  "0x6",
 	}
 
@@ -165,17 +165,17 @@ func main() {
 	tx := t.Transaction{
 		Version:     "0x0",
 		CellDeps:    []t.CellDep{cellDep},
-		HeaderDeps:  make([]t.H256, 0),
+		HeaderDeps:  make([]t.Hash, 0),
 		Inputs:      []t.CellInput{bobInput},
 		Outputs:     []t.CellOutput{aliceOutput, bobOutput},
-		Witnesses:   make([]t.JSONBytes, 0),
-		OutputsData: []t.JSONBytes{"0x", "0x"},
+		Witnesses:   make([]t.Bytes, 0),
+		OutputsData: []t.Bytes{"0x", "0x"},
 	}
 
 	// Cacl witness
 
 	// Serialize transaction
-	txBlob, err := t.Encode(tx)
+	txBlob, err := tx.Serialize()
 	if err != nil {
 		fmt.Printf("Encode failure: %s", err)
 		return
@@ -220,7 +220,7 @@ func main() {
 	hex.Encode(witness, witnessSig[:])
 
 	// Update transaction with witness
-	tx.Witnesses = []t.JSONBytes{fmt.Sprintf("0x%s", witness)}
+	tx.Witnesses = []t.Bytes{t.Bytes(fmt.Sprintf("0x%s", witness))}
 
 	resp, err = rpcClient.Call("send_transaction", []*t.Transaction{&tx})
 	if err != nil {
