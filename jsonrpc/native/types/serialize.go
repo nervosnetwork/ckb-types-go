@@ -20,6 +20,32 @@ func serializeUint32(n uint32) []byte {
 	return b
 }
 
+// SerializeArray serialize array
+func SerializeArray(items []MolSerializer) ([][]byte, error) {
+	ret := make([][]byte, len(items))
+	for i := 0; i < len(items); i++ {
+		bytes, err := items[i].Serialize()
+		if err != nil {
+			return nil, err
+		}
+
+		ret[i] = bytes
+	}
+
+	return ret, nil
+}
+
+// SerializeStruct serialize struct
+func SerializeStruct(fields [][]byte) []byte {
+	b := new(bytes.Buffer)
+
+	for i := 0; i < len(fields); i++ {
+		b.Write(fields[i])
+	}
+
+	return b.Bytes()
+}
+
 // SerializeFixVec serialize fixvec vector
 /*
  * There are two steps of serializing a fixvec:
@@ -125,4 +151,13 @@ func SerializeTable(fields [][]byte) []byte {
 	}
 
 	return b.Bytes()
+}
+
+// SerializeOption serialize option
+func SerializeOption(o MolSerializer) ([]byte, error) {
+	if o == nil {
+		return []byte{}, nil
+	}
+
+	return o.Serialize()
 }

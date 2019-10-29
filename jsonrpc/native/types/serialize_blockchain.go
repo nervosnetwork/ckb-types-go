@@ -76,17 +76,17 @@ func (b *Bytes) Serialize() ([]byte, error) {
 		return nil, err
 	}
 
-	// Fixvec, vector Bytes <byte>
-	if len(inner[2:]) == 0 {
-		return []byte{00, 00, 00, 00}, nil
-	}
-
-	bs, err := hex.DecodeString(inner[2:])
+	decoded, err := hex.DecodeString(inner[2:])
 	if err != nil {
 		return nil, err
 	}
 
-	return bs, nil
+	bytes := make([][]byte, len(decoded))
+	for i := 0; i < len(decoded); i++ {
+		bytes[i] = []byte{decoded[i]}
+	}
+
+	return SerializeFixVec(bytes), nil
 }
 
 // Serialize uint32
@@ -138,6 +138,10 @@ func (u *Uint64) Serialize() ([]byte, error) {
 
 // Serialize script
 func (s *Script) Serialize() ([]byte, error) {
+	if s == nil {
+		return []byte{}, nil
+	}
+
 	h, err := s.CodeHash.Serialize()
 	if err != nil {
 		return nil, err
@@ -153,23 +157,7 @@ func (s *Script) Serialize() ([]byte, error) {
 		return nil, err
 	}
 
-	size := 4 + 4*3 + len(h) + len(t) + len(a) + 4
-	hOffset := 4 + 4*3
-	tOffset := hOffset + len(h)
-	aOffset := tOffset + len(t)
-
-	b := new(bytes.Buffer)
-
-	b.Write(serializeUint32(uint32(size)))
-	b.Write(serializeUint32(uint32(hOffset)))
-	b.Write(serializeUint32(uint32(tOffset)))
-	b.Write(serializeUint32(uint32(aOffset)))
-	b.Write(h)
-	b.Write(t)
-	b.Write(serializeUint32(uint32(len(a))))
-	b.Write(a)
-
-	return b.Bytes(), nil
+	return SerializeTable([][]byte{h, t, a}), nil
 }
 
 // Serialize outpoint
@@ -204,12 +192,7 @@ func (i *CellInput) Serialize() ([]byte, error) {
 		return nil, err
 	}
 
-	b := new(bytes.Buffer)
-
-	b.Write(s)
-	b.Write(o)
-
-	return b.Bytes(), nil
+	return SerializeStruct([][]byte{s, o}), nil
 }
 
 // Serialize cell output
@@ -224,33 +207,12 @@ func (o *CellOutput) Serialize() ([]byte, error) {
 		return nil, err
 	}
 
-	var t []byte
-	if o.Type != nil {
-		t, err = o.Type.Serialize()
-		if err != nil {
-			return nil, err
-		}
+	t, err := SerializeOption(o.Type)
+	if err != nil {
+		return nil, err
 	}
 
-	size := 4 + 4*3 + len(c) + len(l)
-	if len(t) != 0 {
-		size += len(t)
-	}
-	cOffset := 4 + 4*3
-	lOffset := cOffset + len(c)
-	tOffset := lOffset + len(l)
-
-	b := new(bytes.Buffer)
-
-	b.Write(serializeUint32(uint32(size)))
-	b.Write(serializeUint32(uint32(cOffset)))
-	b.Write(serializeUint32(uint32(lOffset)))
-	b.Write(serializeUint32(uint32(tOffset)))
-	b.Write(c)
-	b.Write(l)
-	b.Write(t)
-
-	return b.Bytes(), nil
+	return SerializeTable([][]byte{c, l, t}), nil
 }
 
 // Serialize cell dep
@@ -265,12 +227,7 @@ func (d *CellDep) Serialize() ([]byte, error) {
 		return nil, err
 	}
 
-	b := new(bytes.Buffer)
-
-	b.Write(o)
-	b.Write(dd)
-
-	return b.Bytes(), nil
+	return SerializeStruct([][]byte{o, dd}), nil
 }
 
 // Serialize transaction
@@ -280,14 +237,14 @@ func (t *Transaction) Serialize() ([]byte, error) {
 		return nil, err
 	}
 
-	cds := make([][]byte, len(t.CellDeps))
-	for i := 0; i < len(t.CellDeps); i++ {
-		cd, err := t.CellDeps[i].Serialize()
-		if err != nil {
-			return nil, err
-		}
-
-		cds[i] = cd
+	// Ok, no way around this
+	deps := make([]MolSerializer, len(t.CellDeps))
+	for i, v := range t.CellDeps {
+		deps[i] = &v
+	}
+	cds, err := SerializeArray(deps)
+	if err != nil {
+		return nil, err
 	}
 	cdsBytes := SerializeFixVec(cds)
 
