@@ -3,16 +3,16 @@ package types
 // Basic
 
 // Uint32 ckb uint32, '0x' prefix hex number
-type Uint32 = string
+type Uint32 string
 
 // Uint64 ckb uint64, '0x' prefix hex number
-type Uint64 = string
+type Uint64 string
 
 // Uint128 ckb uint128, '0x' prefix hex number
-type Uint128 = string
+type Uint128 string
 
 // Hash ckb hash, '0x' prefix hex string
-type Hash = string
+type Hash string
 
 // Enum type
 
@@ -23,10 +23,10 @@ type ScriptHashType string
 type DepType string
 
 // Bytes ckb json bytes
-type Bytes = string
+type Bytes string
 
 // ProposalShortID ckb proposal short id
-type ProposalShortID = string
+type ProposalShortID string
 
 // Enum values
 const (

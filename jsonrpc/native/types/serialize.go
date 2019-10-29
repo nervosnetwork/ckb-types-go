@@ -7,6 +7,11 @@ import (
 
 const u32Size uint32 = 4
 
+// MolSerializer molecule serialize interface
+type MolSerializer interface {
+	Serialize() ([]byte, error)
+}
+
 // serializeUint32 serialize uint32
 func serializeUint32(n uint32) []byte {
 	b := make([]byte, 4)

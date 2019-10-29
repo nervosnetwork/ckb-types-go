@@ -9,13 +9,23 @@ import (
 	"strings"
 )
 
-// SerializeHash serialize hash
-func SerializeHash(h string) ([]byte, error) {
-	if !strings.HasPrefix(h, "0x") {
-		return nil, fmt.Errorf("invalid hash, should be 0x-prefix")
+func check0xPrefix(s string) error {
+	if !strings.HasPrefix(s, "0x") {
+		return fmt.Errorf("invalid value, should be 0x-prefix")
+	}
+	return nil
+}
+
+// Serialize hash
+func (h *Hash) Serialize() ([]byte, error) {
+	inner := string(*h)
+
+	err := check0xPrefix(inner)
+	if err != nil {
+		return nil, err
 	}
 
-	b, err := hex.DecodeString(h[2:])
+	b, err := hex.DecodeString(inner[2:])
 	if err != nil {
 		return nil, err
 	}
@@ -27,44 +37,51 @@ func SerializeHash(h string) ([]byte, error) {
 	return b, nil
 }
 
-// SerializeScriptHashType serialize script hash type
-func SerializeScriptHashType(t string) ([]byte, error) {
-	if strings.Compare(t, string(Data)) != 0 && strings.Compare(t, string(Type)) != 0 {
+// Serialize script hash type
+func (t *ScriptHashType) Serialize() ([]byte, error) {
+	inner := string(*t)
+
+	if strings.Compare(inner, string(Data)) != 0 && strings.Compare(inner, string(Type)) != 0 {
 		return nil, fmt.Errorf("invalid script hash type")
 	}
 
-	if strings.Compare(t, string(Data)) == 0 {
+	if strings.Compare(inner, string(Data)) == 0 {
 		return []byte{00}, nil
 	}
 
 	return []byte{01}, nil
 }
 
-// SerializeDepType serialize dep type
-func SerializeDepType(t string) ([]byte, error) {
-	if strings.Compare(t, string(Code)) != 0 && strings.Compare(t, string(DepGroup)) != 0 {
+// Serialize dep type
+func (t *DepType) Serialize() ([]byte, error) {
+	inner := string(*t)
+
+	if strings.Compare(inner, string(Code)) != 0 && strings.Compare(inner, string(DepGroup)) != 0 {
 		return nil, fmt.Errorf("invalid dep group")
 	}
 
-	if strings.Compare(t, string(Code)) == 0 {
+	if strings.Compare(inner, string(Code)) == 0 {
 		return []byte{00}, nil
 	}
 
 	return []byte{01}, nil
 }
 
-// SerializeBytes serialize bytes
-func SerializeBytes(b string) ([]byte, error) {
-	if !strings.HasPrefix(b, "0x") {
-		return nil, fmt.Errorf("invalid hash, should be 0x-prefix")
+// Serialize bytes
+func (b *Bytes) Serialize() ([]byte, error) {
+	inner := string(*b)
+
+	err := check0xPrefix(inner)
+	if err != nil {
+		return nil, err
 	}
 
 	// Fixvec, vector Bytes <byte>
-	if len(b[2:]) == 0 {
+	if len(inner[2:]) == 0 {
 		return []byte{00, 00, 00, 00}, nil
 	}
 
-	bs, err := hex.DecodeString(b[2:])
+	bs, err := hex.DecodeString(inner[2:])
 	if err != nil {
 		return nil, err
 	}
@@ -72,14 +89,17 @@ func SerializeBytes(b string) ([]byte, error) {
 	return bs, nil
 }
 
-// SerializeUint32 serialize string represented uint32
-func SerializeUint32(u string) ([]byte, error) {
-	if !strings.HasPrefix(u, "0x") {
-		return nil, fmt.Errorf("invalid uin32, should be 0x-prefix")
+// Serialize uint32
+func (u *Uint32) Serialize() ([]byte, error) {
+	inner := string(*u)
+
+	err := check0xPrefix(inner)
+	if err != nil {
+		return nil, err
 	}
 
-	uu := u[2:]
-	if len(u)%2 != 0 {
+	uu := inner[2:]
+	if len(inner)%2 != 0 {
 		uu = "0" + uu
 	}
 
@@ -91,14 +111,17 @@ func SerializeUint32(u string) ([]byte, error) {
 	return serializeUint32(uint32(n)), nil
 }
 
-// SerializeUint64 serialize string represented uint64
-func SerializeUint64(u string) ([]byte, error) {
-	if !strings.HasPrefix(u, "0x") {
-		return nil, fmt.Errorf("invalid uint64, should be 0x-prefix")
+// Serialize uint64
+func (u *Uint64) Serialize() ([]byte, error) {
+	inner := string(*u)
+
+	err := check0xPrefix(inner)
+	if err != nil {
+		return nil, err
 	}
 
-	uu := u[2:]
-	if len(u)%2 != 0 {
+	uu := inner[2:]
+	if len(inner)%2 != 0 {
 		uu = "0" + uu
 	}
 
@@ -115,17 +138,17 @@ func SerializeUint64(u string) ([]byte, error) {
 
 // Serialize script
 func (s *Script) Serialize() ([]byte, error) {
-	h, err := SerializeHash(s.CodeHash)
+	h, err := s.CodeHash.Serialize()
 	if err != nil {
 		return nil, err
 	}
 
-	t, err := SerializeScriptHashType(string(s.HashType))
+	t, err := s.HashType.Serialize()
 	if err != nil {
 		return nil, err
 	}
 
-	a, err := SerializeBytes(s.Args)
+	a, err := s.Args.Serialize()
 	if err != nil {
 		return nil, err
 	}
@@ -151,12 +174,12 @@ func (s *Script) Serialize() ([]byte, error) {
 
 // Serialize outpoint
 func (o *OutPoint) Serialize() ([]byte, error) {
-	h, err := SerializeHash(o.TxHash)
+	h, err := o.TxHash.Serialize()
 	if err != nil {
 		return nil, err
 	}
 
-	i, err := SerializeUint32(o.Index)
+	i, err := o.Index.Serialize()
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +194,7 @@ func (o *OutPoint) Serialize() ([]byte, error) {
 
 // Serialize cell input
 func (i *CellInput) Serialize() ([]byte, error) {
-	s, err := SerializeUint64(i.Since)
+	s, err := i.Since.Serialize()
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +214,7 @@ func (i *CellInput) Serialize() ([]byte, error) {
 
 // Serialize cell output
 func (o *CellOutput) Serialize() ([]byte, error) {
-	c, err := SerializeUint64(o.Capacity)
+	c, err := o.Capacity.Serialize()
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +260,7 @@ func (d *CellDep) Serialize() ([]byte, error) {
 		return nil, err
 	}
 
-	dd, err := SerializeDepType(string(d.DepType))
+	dd, err := d.DepType.Serialize()
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +275,7 @@ func (d *CellDep) Serialize() ([]byte, error) {
 
 // Serialize transaction
 func (t *Transaction) Serialize() ([]byte, error) {
-	v, err := SerializeUint32(t.Version)
+	v, err := t.Version.Serialize()
 	if err != nil {
 		return nil, err
 	}
@@ -270,7 +293,7 @@ func (t *Transaction) Serialize() ([]byte, error) {
 
 	hds := make([][]byte, len(t.HeaderDeps))
 	for i := 0; i < len(t.HeaderDeps); i++ {
-		hd, err := SerializeHash(t.HeaderDeps[i])
+		hd, err := t.HeaderDeps[i].Serialize()
 		if err != nil {
 			return nil, err
 		}
@@ -303,7 +326,7 @@ func (t *Transaction) Serialize() ([]byte, error) {
 
 	ods := make([][]byte, len(t.OutputsData))
 	for i := 0; i < len(t.OutputsData); i++ {
-		od, err := SerializeBytes(t.OutputsData[i])
+		od, err := t.OutputsData[i].Serialize()
 		if err != nil {
 			return nil, err
 		}
