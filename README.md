@@ -20,7 +20,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	"github.com/minio/blake2b-simd"
 	"github.com/ybbus/jsonrpc"
-	t "github.com/zeroqn/ckb-types-go/jsonrpc/types"
+	t "github.com/nervosnetwork/ckb-types-go/jsonrpc/types"
 )
 
 // from spec/dev.toml
@@ -215,7 +215,7 @@ func main() {
 	}
 
 	// Hex witness signature
-    // NOTE: 130 is secp256k1 sig with recovery pubkey
+	// NOTE: 130 is secp256k1 sig with recovery pubkey
 	witness := make([]byte, 130)
 	hex.Encode(witness, witnessSig[:])
 
