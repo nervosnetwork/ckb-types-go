@@ -25,4 +25,7 @@ jobs:
         fi
 
     - name: Build
-      run: cd jsonrpc/types && go build -v .
+      run: cd jsonrpc/types && go build -v
+
+    - name: Test
+      run: cd jsonrpc/types && go test -v
