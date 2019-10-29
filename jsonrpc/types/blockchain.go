@@ -2,17 +2,17 @@ package types
 
 // Basic
 
-// Uint32 ckb uint32, '0x' prefix nubmer
-type Uint32 = string
+// Uint32 ckb uint32, '0x' prefix hex number
+type Uint32 string
 
-// Uint64 ckb uint64, '0x' prefix number
-type Uint64 = string
+// Uint64 ckb uint64, '0x' prefix hex number
+type Uint64 string
 
-// Uint128 ckb uint128, '0x' prefix number
-type Uint128 = string
+// Uint128 ckb uint128, '0x' prefix hex number
+type Uint128 string
 
-// H256 ckb H256
-type H256 = string
+// Hash ckb hash, '0x' prefix hex string
+type Hash string
 
 // Enum type
 
@@ -22,11 +22,11 @@ type ScriptHashType string
 // DepType ckb dep type
 type DepType string
 
-// JSONBytes ckb json bytes
-type JSONBytes = string
+// Bytes ckb json bytes
+type Bytes string
 
 // ProposalShortID ckb proposal short id
-type ProposalShortID = string
+type ProposalShortID string
 
 // Enum values
 const (
@@ -39,21 +39,21 @@ const (
 
 // Script ckb script
 type Script struct {
-	Args     JSONBytes      `json:"args"`
-	CodeHash H256           `json:"code_hash"`
+	CodeHash Hash           `json:"code_hash"`
 	HashType ScriptHashType `json:"hash_type"`
+	Args     Bytes          `json:"args"`
 }
 
 // OutPoint ckb outpoint
 type OutPoint struct {
-	TxHash H256   `json:"tx_hash"`
+	TxHash Hash   `json:"tx_hash"`
 	Index  Uint32 `json:"index"`
 }
 
 // CellInput ckb cell input
 type CellInput struct {
-	PreviousOutput OutPoint `json:"previous_output"`
 	Since          Uint64   `json:"since"`
+	PreviousOutput OutPoint `json:"previous_output"`
 }
 
 // CellOutput ckb cell output
@@ -73,24 +73,24 @@ type CellDep struct {
 type Transaction struct {
 	Version     Uint32       `json:"version"`
 	CellDeps    []CellDep    `json:"cell_deps"`
-	HeaderDeps  []H256       `json:"header_deps"`
+	HeaderDeps  []Hash       `json:"header_deps"`
 	Inputs      []CellInput  `json:"inputs"`
 	Outputs     []CellOutput `json:"outputs"`
-	Witnesses   []JSONBytes  `json:"witnesses"`
-	OutputsData []JSONBytes  `json:"outputs_data"`
+	Witnesses   []Bytes      `json:"witnesses"`
+	OutputsData []Bytes      `json:"outputs_data"`
 }
 
 // Header ckb header
 type Header struct {
 	Version          Uint32  `json:"version"`
 	CompactTarget    Uint32  `json:"compact_target"`
-	ParentHash       H256    `json:"parent_hash"`
+	ParentHash       Hash    `json:"parent_hash"`
 	Timestamp        Uint64  `json:"timestamp"`
 	Number           Uint64  `json:"number"`
 	Epoch            Uint64  `json:"epoch"`
-	TransactionsRoot H256    `json:"transactions_root"`
-	ProposalsHash    H256    `json:"proposals_hash"`
-	UnclesHash       H256    `json:"uncles_hash"`
+	TransactionsRoot Hash    `json:"transactions_root"`
+	ProposalsHash    Hash    `json:"proposals_hash"`
+	UnclesHash       Hash    `json:"uncles_hash"`
 	Dao              string  `json:"dao"`
 	Nonce            Uint128 `json:"nonce"`
 }
