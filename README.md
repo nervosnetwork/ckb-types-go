@@ -15,12 +15,13 @@ we can properly calculate transaction hash.
 package main
 
 import (
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	"github.com/minio/blake2b-simd"
-	"github.com/ybbus/jsonrpc"
 	t "github.com/nervosnetwork/ckb-types-go/jsonrpc/types"
+	"github.com/ybbus/jsonrpc"
 )
 
 // from spec/dev.toml
@@ -42,7 +43,7 @@ import (
 const CkbBlake2BHashPersonalization = "ckb-default-hash"
 
 // GenesisBlockHash genesis block hash
-const GenesisBlockHash = "0xe49352ee4984694d88eb3c1493a33d69d61c786dc5b0a32c4b3978d4fad64379"
+const GenesisBlockHash = "0x73f4ffa1d7898c2c044326363ba8d59fd123e173ff2d5c4d187d29baaae6214e"
 
 // BobAddress bob address
 const BobAddress = "0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7"
@@ -196,9 +197,28 @@ func main() {
 	h.Write(txBlob)
 	txHash := h.Sum(nil)
 
+	// Calc witness args
+	// 65 is secp256k1 signature length
+	lock := hex.EncodeToString(make([]byte, 65))
+	witnessLock := t.Bytes(fmt.Sprintf("0x%s", lock))
+	wa := t.WitnessArgs{
+		Lock: &witnessLock,
+	}
+
+	wab, err := wa.Serialize()
+	if err != nil {
+		fmt.Printf("Serialize witness args failure, %s\n", err)
+		return
+	}
+
+	wabLen := make([]byte, 8)
+	binary.LittleEndian.PutUint64(wabLen, uint64(len(wab)))
+
 	// Hash again
 	h.Reset()
 	h.Write(txHash)
+	h.Write(wabLen)
+	h.Write(wab)
 	witnessMessage := h.Sum(nil)
 
 	// Sign witness message
@@ -206,6 +226,7 @@ func main() {
 	_, err = hex.Decode(bobSecKey, []byte(BobSecKey))
 	if err != nil {
 		fmt.Println("Invalid bob private key")
+		return
 	}
 
 	witnessSig, err := secp256k1.Sign(witnessMessage[:], bobSecKey)
@@ -215,12 +236,25 @@ func main() {
 	}
 
 	// Hex witness signature
-	// NOTE: 130 is secp256k1 sig with recovery pubkey
+	// 130 is hexed secp256k1 with recoverable public length
 	witness := make([]byte, 130)
 	hex.Encode(witness, witnessSig[:])
 
+	// Refill witness args
+	witnessLock = t.Bytes(fmt.Sprintf("0x%s", witness))
+	wa = t.WitnessArgs{
+		Lock: &witnessLock,
+	}
+
+	// Serialize witness args
+	witness, err = wa.Serialize()
+	if err != nil {
+		fmt.Printf("witness serialize failure: %s\n", err)
+		return
+	}
+
 	// Update transaction with witness
-	tx.Witnesses = []t.Bytes{t.Bytes(fmt.Sprintf("0x%s", witness))}
+	tx.Witnesses = []t.Bytes{t.Bytes(fmt.Sprintf("0x%s", hex.EncodeToString(witness)))}
 
 	resp, err = rpcClient.Call("send_transaction", []*t.Transaction{&tx})
 	if err != nil {
