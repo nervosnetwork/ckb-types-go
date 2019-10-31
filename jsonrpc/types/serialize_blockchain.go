@@ -226,6 +226,26 @@ func (d *CellDep) Serialize() ([]byte, error) {
 	return SerializeStruct([][]byte{o, dd}), nil
 }
 
+// Serialize witness args
+func (w *WitnessArgs) Serialize() ([]byte, error) {
+	l, err := SerializeOption(w.Lock)
+	if err != nil {
+		return nil, err
+	}
+
+	i, err := SerializeOption(w.InputType)
+	if err != nil {
+		return nil, err
+	}
+
+	o, err := SerializeOption(w.OutputType)
+	if err != nil {
+		return nil, err
+	}
+
+	return SerializeTable([][]byte{l, i, o}), nil
+}
+
 // Serialize transaction
 func (t *Transaction) Serialize() ([]byte, error) {
 	v, err := t.Version.Serialize()

@@ -69,6 +69,13 @@ type CellDep struct {
 	DepType  DepType  `json:"dep_type"`
 }
 
+// WitnessArgs ckb witness args
+type WitnessArgs struct {
+	Lock       *Bytes `json:"lock"`
+	InputType  *Bytes `json:"input_type"`
+	OutputType *Bytes `json:"output_type"`
+}
+
 // Transaction ckb transaction
 type Transaction struct {
 	Version     Uint32       `json:"version"`
