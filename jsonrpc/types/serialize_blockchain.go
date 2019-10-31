@@ -138,10 +138,6 @@ func (u *Uint64) Serialize() ([]byte, error) {
 
 // Serialize script
 func (s *Script) Serialize() ([]byte, error) {
-	if s == nil {
-		return []byte{}, nil
-	}
-
 	h, err := s.CodeHash.Serialize()
 	if err != nil {
 		return nil, err

@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 	"encoding/binary"
+	"reflect"
 )
 
 const u32Size uint32 = 4
@@ -155,7 +156,7 @@ func SerializeTable(fields [][]byte) []byte {
 
 // SerializeOption serialize option
 func SerializeOption(o MolSerializer) ([]byte, error) {
-	if o == nil {
+	if o == nil || reflect.ValueOf(o).IsNil() {
 		return []byte{}, nil
 	}
 
